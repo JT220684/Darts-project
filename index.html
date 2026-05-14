@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1B5E20">
+<link rel="manifest" href="manifest.json">
+<title>Darts League</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--g1:#1B5E20;--g2:#2E7D32;--g3:#43A047;--gold:#F9A825;
+  --dark:#111827;--card:#1e293b;--card2:#263238;--grey:#334155;
+  --grey2:#546E7A;--text:#e2e8f0;--sub:#94a3b8}
+html,body{height:100%;overflow:hidden;background:var(--dark);color:var(--text);
+  font-family:-apple-system,Arial,sans-serif}
+#app{display:flex;flex-direction:column;height:100%}
+#hdr{background:linear-gradient(135deg,var(--g1),var(--g2));padding:12px 16px;
+  display:flex;align-items:center;gap:8px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+#hdr h1{font-size:1.05em;color:#fff;font-weight:700;letter-spacing:.5px}
+#hdr .ico{font-size:1.3em}
+#saved{margin-left:auto;font-size:.7em;color:rgba(255,255,255,.55);
+  opacity:0;transition:.4s}
+#saved.on{opacity:1}
+#content{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px;
+  -webkit-overflow-scrolling:touch;padding-bottom:4px}
+#nav{display:flex;background:#0f172a;border-top:1px solid var(--grey);
+  flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+#nav::-webkit-scrollbar{display:none}
+#nav button{flex:0 0 auto;padding:9px 12px;background:none;border:none;
+  color:var(--sub);font-size:.65em;display:flex;flex-direction:column;
+  align-items:center;gap:2px;cursor:pointer;min-width:56px;
+  border-top:2px solid transparent;transition:.15s}
+#nav button .i{font-size:1.35em;line-height:1}
+#nav button.on{color:var(--gold);border-top-color:var(--gold)}
+.card{background:var(--card);border-radius:10px;padding:13px;margin-bottom:11px}
+.ct{color:var(--gold);font-size:.75em;font-weight:700;text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:9px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.8em}
+th{background:var(--grey);color:#fff;padding:7px 5px;text-align:center;
+  white-space:nowrap}
+th.l{text-align:left;padding-left:8px}
+td{padding:7px 5px;border-bottom:1px solid #1e293b;text-align:center;white-space:nowrap}
+td.l{text-align:left;padding-left:8px}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+input[type=text]{background:var(--grey);color:#fff;border:1px solid var(--grey2);
+  border-radius:7px;padding:9px 11px;font-size:.9em;width:100%}
+input.sc{background:#FFF9C4;color:#212121;width:54px;text-align:center;
+  font-weight:700;font-size:.95em;border-radius:7px;padding:7px 3px;
+  border:1px solid #F9A825}
+input.hs{width:42px;text-align:center;font-size:.78em;padding:5px 2px;
+  border-radius:5px;border:none}
+input.h1{background:#DBEAFE;color:#1e3a8a}
+input.h4{background:#FEF3C7;color:#92400e}
+input.h8{background:#FEE2E2;color:#991b1b;font-weight:700}
+input.hc{background:#DCFCE7;color:#14532d}
+.btn{display:inline-flex;align-items:center;gap:5px;background:var(--g2);
+  color:#fff;border:none;padding:10px 15px;border-radius:8px;
+  font-size:.88em;cursor:pointer;font-weight:500;
+  -webkit-appearance:none;transition:.12s}
+.btn:active{opacity:.75;transform:scale(.96)}
+.btn.go{background:var(--gold);color:#212121}
+.btn.rd{background:#dc2626}
+.btn.sm{padding:7px 12px;font-size:.8em}
+.br{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;
+  font-size:.7em;font-weight:700}
+.pw{background:var(--g2);color:#fff}
+.pl{background:#dc2626;color:#fff}
+.pb{background:var(--grey2);color:#fff}
+.pd{background:var(--gold);color:#212121}
+.rnds{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;
+  margin-bottom:11px;scrollbar-width:none}
+.rnds::-webkit-scrollbar{display:none}
+.rnds button{flex:0 0 auto;padding:6px 13px;background:var(--grey);
+  color:var(--sub);border:none;border-radius:20px;font-size:.78em;cursor:pointer}
+.rnds button.on{background:var(--g2);color:#fff}
+.sh{background:var(--g1);color:#fff;padding:8px 12px;border-radius:6px;
+  font-weight:700;font-size:.82em;margin-bottom:8px}
+.nh{background:linear-gradient(135deg,#4A148C,#6A1B9A);
+  color:#fff;padding:8px 12px;border-radius:6px;margin-bottom:8px;font-size:.82em}
+.champ{background:linear-gradient(135deg,#F9A825,#E65100);color:#fff;
+  padding:15px;border-radius:10px;text-align:center;font-size:1.05em;
+  font-weight:700;margin-top:10px;line-height:1.5}
+.spoon{background:linear-gradient(135deg,#4E342E,#6D4C41);color:#fff;
+  padding:15px;border-radius:10px;text-align:center;font-size:1.05em;
+  font-weight:700;margin-top:10px;line-height:1.5}
+.pend{background:var(--grey);color:var(--sub);padding:13px;
+  border-radius:10px;text-align:center;margin-top:10px;font-size:.9em}
+.brow{display:flex;align-items:center;gap:6px;padding:8px 10px;
+  background:var(--card2);border-radius:8px;margin-bottom:6px}
+.blbl{padding:3px 8px;border-radius:4px;font-size:.7em;font-weight:700;
+  white-space:nowrap;flex-shrink:0}
+.bp{flex:1;font-size:.82em;font-weight:500;overflow:hidden;text-overflow:ellipsis;min-width:50px}
+.bvs{color:var(--sub);font-size:.78em;flex-shrink:0}
+.bw{color:var(--gold);font-weight:700;font-size:.82em;text-align:right;
+  overflow:hidden;text-overflow:ellipsis;min-width:50px}
+.tbc{color:var(--sub);font-style:italic;font-size:.82em}
+.prow{display:flex;align-items:center;gap:8px;padding:8px 0;
+  border-bottom:1px solid var(--grey)}
+.pnum{color:var(--sub);font-size:.78em;width:22px;flex-shrink:0;text-align:right}
+#toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
+  background:var(--g2);color:#fff;padding:8px 18px;border-radius:20px;
+  font-size:.82em;opacity:0;transition:.3s;pointer-events:none;z-index:99;
+  white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hdr">
+    <div class="ico">🎯</div>
+    <h1>DARTS LEAGUE</h1>
+    <div id="saved">✓ Saved</div>
+  </div>
+  <div id="content"></div>
+  <nav id="nav"></nav>
+</div>
+<div id="toast"></div>
+<script>
+const TABS=[
+  {i:'⚙️',l:'Setup'},{i:'📅',l:'Fixtures'},{i:'📊',l:'League'},
+  {i:'🌙',l:'Nightly'},{i:'⭐',l:'Winners'},{i:'💯',l:'Scores'},
+  {i:'🏆',l:'Finals'},{i:'🥄',l:'Spoon'}];
+const MAX_P=16;
+let AT=0,CR=0,S=load();
+
+function defState(){
+  return{players:['Phil Taylor','Michael van Gerwen','Gary Anderson','Peter Wright',
+    'Gerwyn Price','Luke Littler','Jonny Clayton','Dimitri Van den Bergh',
+    ...Array(8).fill('')],
+    legsPerMatch:5,fixtures:genFix(),results:{},nightly:{},finals:{},wooden:{}};
+}
+function load(){
+  try{const d=localStorage.getItem('darts_pwa');if(d)return JSON.parse(d);}catch(e){}
+  return defState();
+}
+function save(){
+  localStorage.setItem('darts_pwa',JSON.stringify(S));
+  const e=document.getElementById('saved');
+  e.classList.add('on');clearTimeout(window._sv);
+  window._sv=setTimeout(()=>e.classList.remove('on'),1400);
+}
+function toast(m){
+  const e=document.getElementById('toast');
+  e.textContent=m;e.classList.add('on');
+  clearTimeout(window._t);window._t=setTimeout(()=>e.classList.remove('on'),1800);
+}
+function genFix(){
+  const s=[...Array(MAX_P).keys()];
+  for(let i=s.length-1;i>0;i--){const j=0|Math.random()*(i+1);[s[i],s[j]]=[s[j],s[i]];}
+  const n=s.length,R=[],p=[...s];
+  for(let r=0;r<n-1;r++){
+    R.push(p.slice(0,n/2).map((h,i)=>({home:h,away:p[n-1-i]})));
+    const last=p[n-1];for(let i=n-1;i>1;i--)p[i]=p[i-1];p[1]=last;
+  }
+  return R;
+}
+const pn=s=>S.players[s]||'';
+const mk=(ri,mi)=>`r${ri}m${mi}`;
+const mr=(ri,mi)=>S.results[mk(ri,mi)]||{};
+
+function mWin(ri,mi){
+  const m=S.fixtures[ri][mi],hn=pn(m.home),an=pn(m.away);
+  if(!hn&&!an)return null;
+  if(hn&&!an)return{name:hn,bye:true};
+  if(!hn&&an)return{name:an,bye:true};
+  const r=mr(ri,mi);
+  if(r.hl===undefined||r.hl===''||r.al===undefined||r.al==='')return null;
+  const hl=+r.hl,al=+r.al;
+  if(hl>al)return{name:hn};if(al>hl)return{name:an};return{name:'Draw',draw:true};
+}
+function sv(store,key,field,val){
+  const st={results:S.results,nightly:S.nightly,finals:S.finals,wooden:S.wooden}[store];
+  if(!st[key])st[key]={};
+  st[key][field]=val===''?'':isNaN(val)?val:+val;
+  save();rc();
+}
+window.sv=sv;
+function bw(store,key,p1,p2){
+  if(!p1&&!p2)return null;
+  if(p1&&p1!=='TBC'&&(!p2||p2==='TBC'))return p1;
+  if(p2&&p2!=='TBC'&&(!p1||p1==='TBC'))return p2;
+  if(!p1||!p2||p1==='TBC'||p2==='TBC')return null;
+  const r=store[key]||{};
+  if(r.l1===''||r.l1===undefined||r.l2===''||r.l2===undefined)return null;
+  return +r.l1>+r.l2?p1:+r.l2>+r.l1?p2:'Replay';
+}
+function calcLeague(){
+  const t={};
+  S.players.filter(p=>p.trim()).forEach(p=>
+    t[p]={p:0,w:0,l:0,d:0,lf:0,la:0,pts:0,s1:0,s4:0,s8:0,co:0});
+  S.fixtures.forEach((rnd,ri)=>rnd.forEach((m,mi)=>{
+    const hn=pn(m.home),an=pn(m.away);
+    if(!hn&&!an)return;
+    const r=mr(ri,mi);
+    if(hn&&!an){if(t[hn]){t[hn].p++;t[hn].w++;t[hn].pts+=2;}return;}
+    if(!hn&&an){if(t[an]){t[an].p++;t[an].w++;t[an].pts+=2;}return;}
+    if(!t[hn]||!t[an])return;
+    if(r.hl===''||r.hl===undefined||r.al===''||r.al===undefined)return;
+    const hl=+r.hl,al=+r.al;
+    t[hn].p++;t[an].p++;t[hn].lf+=hl;t[hn].la+=al;t[an].lf+=al;t[an].la+=hl;
+    if(hl>al){t[hn].w++;t[hn].pts+=2;t[an].l++;}
+    else if(al>hl){t[an].w++;t[an].pts+=2;t[hn].l++;}
+    else{t[hn].d++;t[an].d++;t[hn].pts++;t[an].pts++;}
+    [['hl100','al100','s1'],['hl140','al140','s4'],['hl180','al180','s8'],['hlco','alco','co']]
+      .forEach(([hk,ak,sk])=>{
+        if(r[hk])t[hn][sk]+=+r[hk]||0;
+        if(r[ak])t[an][sk]+=+r[ak]||0;
+      });
+  }));
+  return Object.entries(t).map(([name,d])=>({name,...d,ld:d.lf-d.la}))
+    .sort((a,b)=>b.pts-a.pts||b.ld-a.ld||b.lf-a.lf);
+}
+const pAtRank=n=>{const lg=calcLeague();return lg[n-1]?lg[n-1].name:'TBC';};
+function calcNML(ri){
+  const pl={};
+  S.fixtures[ri].forEach((m,mi)=>{
+    const hn=pn(m.home),an=pn(m.away);
+    if(!hn&&!an)return;
+    const r=mr(ri,mi);
+    const ini=p=>{if(!pl[p])pl[p]={p:0,w:0,l:0,lf:0,la:0,pts:0};};
+    if(hn&&!an){ini(hn);pl[hn].p++;pl[hn].w++;pl[hn].pts+=2;return;}
+    if(!hn&&an){ini(an);pl[an].p++;pl[an].w++;pl[an].pts+=2;return;}
+    ini(hn);ini(an);
+    if(r.hl===''||r.hl===undefined||r.al===''||r.al===undefined)return;
+    const hl=+r.hl,al=+r.al;
+    pl[hn].p++;pl[an].p++;pl[hn].lf+=hl;pl[hn].la+=al;pl[an].lf+=al;pl[an].la+=hl;
+    if(hl>al){pl[hn].w++;pl[hn].pts+=2;pl[an].l++;}
+    else if(al>hl){pl[an].w++;pl[an].pts+=2;pl[hn].l++;}
+    else{pl[hn].pts++;pl[an].pts++;}
+  });
+  return Object.entries(pl).map(([name,d])=>({name,...d,ld:d.lf-d.la}))
+    .sort((a,b)=>b.pts-a.pts||b.ld-a.ld||b.lf-a.lf);
+}
+const nSeed=(ri,n)=>{const ml=calcNML(ri);return ml[n-1]?ml[n-1].name:'TBC';};
+
+function initNav(){
+  document.getElementById('nav').innerHTML=TABS.map((t,i)=>
+    `<button onclick="showTab(${i})" id="nb${i}"><span class="i">${t.i}</span>${t.l}</button>`).join('');
+}
+function showTab(i){
+  AT=i;
+  document.querySelectorAll('#nav button').forEach((b,j)=>b.classList.toggle('on',j===i));
+  rc();
+}
+function rc(){
+  [rSetup,rFix,rLeague,rNightly,rWinners,rScores,rFinals,rSpoon][AT]();
+}
+
+function rSetup(){
+  let rows='';
+  for(let i=0;i<MAX_P;i++)
+    rows+=`<div class="prow"><span class="pnum">${i+1}</span>
+      <input type="text" value="${S.players[i]||''}" placeholder="Player ${i+1}"
+        onchange="S.players[${i}]=this.value;save()"></div>`;
+  set(`
+  <div class="card"><div class="ct">Players</div>${rows}</div>
+  <div class="card"><div class="ct">Settings</div>
+    <p style="color:var(--sub);font-size:.8em;margin-bottom:8px">Legs per match</p>
+    <input type="number" min="1" max="11" value="${S.legsPerMatch}"
+      style="width:80px;background:var(--grey);color:#fff;border:1px solid var(--grey2);
+      border-radius:7px;padding:8px 10px;font-size:.9em"
+      onchange="S.legsPerMatch=+this.value;save()">
+  </div>
+  <div class="card"><div class="ct">Fixtures</div>
+    <p style="color:var(--sub);font-size:.8em;margin-bottom:10px">
+      ⚠️ Regenerating clears all results.</p>
+    <div class="br">
+      <button class="btn go" onclick="regenFix()">🔀 Regenerate</button>
+      <button class="btn rd sm" onclick="resetAll()">🗑 Reset All</button>
+    </div>
+  </div>
+  <div class="card"><div class="ct">Install App</div>
+    <p style="color:var(--sub);font-size:.82em;line-height:1.7">
+      In Chrome tap <b>⋮ menu → Add to Home screen</b><br>
+      The app installs with its own icon and runs full screen.</p>
+  </div>`);
+}
+window.regenFix=()=>{
+  if(!confirm('Clear all results and regenerate fixtures?'))return;
+  S.fixtures=genFix();S.results={};S.nightly={};S.finals={};S.wooden={};
+  save();toast('✓ Fixtures regenerated');rc();
+};
+window.resetAll=()=>{
+  if(!confirm('Reset everything? Cannot be undone.'))return;
+  S=defState();save();rc();toast('Reset done');
+};
+
+function rFix(){
+  const rb=S.fixtures.map((_,i)=>
+    `<button onclick="CR=${i};rc()" class="${i===CR?'on':''}">${i+1}</button>`).join('');
+  let html='';
+  S.fixtures[CR].forEach((m,mi)=>{
+    const hn=pn(m.home),an=pn(m.away);
+    if(!hn&&!an)return;
+    const r=mr(CR,mi),k=mk(CR,mi);
+    const w=mWin(CR,mi);
+    const wp=w?(w.bye?'<span class="pill pb">BYE</span>':
+      w.draw?'<span class="pill pd">Draw</span>':
+      `<span class="pill pw">${w.name}</span>`):'<span class="tbc">—</span>';
+    html+=`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+        <b style="font-size:.9em;flex:1">${hn||'—'}</b>
+        <span style="color:var(--sub);font-size:.8em;padding:0 8px">vs</span>
+        <b style="font-size:.9em;flex:1;text-align:right">${an||'—'}</b>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:9px">
+        <input type="number" min="0" class="sc" value="${r.hl||''}" placeholder="Legs"
+          onchange="sv('results','${k}','hl',this.value)">
+        <span style="color:var(--sub);font-size:1.1em">—</span>
+        <input type="number" min="0" class="sc" value="${r.al||''}" placeholder="Legs"
+          onchange="sv('results','${k}','al',this.value)">
+      </div>
+      <div style="text-align:center;margin-bottom:10px">${wp}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--grey);border-radius:7px;padding:8px">
+          <div style="font-size:.68em;color:var(--sub);margin-bottom:5px;font-weight:600">HOME SCORES</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <input type="number" min="0" class="hs h1" value="${r.hl100||''}" placeholder="100+"
+              onchange="sv('results','${k}','hl100',this.value)" title="100+">
+            <input type="number" min="0" class="hs h4" value="${r.hl140||''}" placeholder="140+"
+              onchange="sv('results','${k}','hl140',this.value)" title="140+">
+            <input type="number" min="0" class="hs h8" value="${r.hl180||''}" placeholder="180"
+              onchange="sv('results','${k}','hl180',this.value)" title="180">
+            <input type="number" min="0" class="hs hc" value="${r.hlco||''}" placeholder="CO+"
+              onchange="sv('results','${k}','hlco',this.value)" title="100+ Checkout">
+          </div>
+        </div>
+        <div style="background:var(--grey);border-radius:7px;padding:8px">
+          <div style="font-size:.68em;color:var(--sub);margin-bottom:5px;font-weight:600">AWAY SCORES</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <input type="number" min="0" class="hs h1" value="${r.al100||''}" placeholder="100+"
+              onchange="sv('results','${k}','al100',this.value)" title="100+">
+            <input type="number" min="0" class="hs h4" value="${r.al140||''}" placeholder="140+"
+              onchange="sv('results','${k}','al140',this.value)" title="140+">
+            <input type="number" min="0" class="hs h8" value="${r.al180||''}" placeholder="180"
+              onchange="sv('results','${k}','al180',this.value)" title="180">
+            <input type="number" min="0" class="hs hc" value="${r.alco||''}" placeholder="CO+"
+              onchange="sv('results','${k}','alco',this.value)" title="100+ Checkout">
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  set(`<div class="rnds">${rb}</div>
+    <div class="sh">Round ${CR+1} — League Matches</div>
+    ${html||'<div class="card tbc">No active players this round</div>'}`);
+}
+
+function rLeague(){
+  const lg=calcLeague();
+  let rows='';
+  lg.forEach((p,i)=>{
+    const m=i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
+    rows+=`<tr>
+      <td>${m}</td><td class="l"><b>${p.name}</b></td>
+      <td>${p.p}</td>
+      <td style="color:#4ade80">${p.w}</td>
+      <td style="color:#f87171">${p.l}</td>
+      <td>${p.lf}</td><td>${p.la}</td>
+      <td style="color:${p.ld>=0?'#4ade80':'#f87171'}">${p.ld>=0?'+':''}${p.ld}</td>
+      <td style="color:var(--gold);font-weight:700">${p.pts}</td>
+    </tr>`;
+  });
+  set(`<div class="card"><div class="ct">Standings</div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th class="l">Player</th>
+        <th>P</th><th>W</th><th>L</th><th>LF</th><th>LA</th><th>LD</th><th>Pts</th>
+      </tr></thead><tbody>${rows||'<tr><td colspan="9" class="tbc">No results yet</td></tr>'}</tbody>
+    </table></div></div>`);
+}
+
+function bRow(lbl,lblBg,key,store,p1,p2){
+  const r=store[key]||{};
+  const auto=(p1&&p1!=='TBC'&&(!p2||p2==='TBC'))||(p2&&p2!=='TBC'&&(!p1||p1==='TBC'));
+  const w=bw(store,key,p1,p2);
+  const sn=Object.keys({results:S.results,nightly:S.nightly,finals:S.finals,wooden:S.wooden})
+    .find(k=>S[k.replace('s','')||k]===store)||
+    (store===S.nightly?'nightly':store===S.finals?'finals':store===S.wooden?'wooden':'results');
+  const ins=auto?`<span class="tbc" style="flex:0 0 auto">auto</span>`:
+    `<input type="number" min="0" class="sc" style="width:46px" value="${r.l1||''}"
+      onchange="sv('${sn}','${key}','l1',this.value)">
+     <span class="bvs">—</span>
+     <input type="number" min="0" class="sc" style="width:46px" value="${r.l2||''}"
+      onchange="sv('${sn}','${key}','l2',this.value)">`;
+  return `<div class="brow">
+    <span class="blbl" style="background:${lblBg};color:${lblBg==='#F9A825'?'#212121':'#fff'}">${lbl}</span>
+    <span class="bp">${p1||'<span class="tbc">TBC</span>'}</span>
+    ${ins}
+    <span class="bp" style="text-align:right">${p2||'<span class="tbc">TBC</span>'}</span>
+    <span class="bw">${w||'—'}</span>
+  </div>`;
+}
+
+function rNightly(){
+  const rb=S.fixtures.map((_,i)=>
+    `<button onclick="CR=${i};rc()" class="${i===CR?'on':''}">${i+1}</button>`).join('');
+  const ml=calcNML(CR);
+  let mlRows='';
+  ml.forEach((p,i)=>mlRows+=`<tr>
+    <td>${i+1}</td><td class="l"><b>${p.name}</b></td>
+    <td style="color:#4ade80">${p.w}</td><td style="color:#f87171">${p.l}</td>
+    <td style="color:${p.ld>=0?'#4ade80':'#f87171'}">${p.ld>=0?'+':''}${p.ld}</td>
+    <td style="color:var(--gold);font-weight:700">${p.pts}</td></tr>`);
+  const qP=[[1,8],[2,7],[3,6],[4,5]];
+  const qW=qP.map(([a,b],i)=>bw(S.nightly,`n${CR}_qf${i}`,nSeed(CR,a),nSeed(CR,b)));
+  const sfW=[bw(S.nightly,`n${CR}_sf0`,qW[0],qW[3]),bw(S.nightly,`n${CR}_sf1`,qW[1],qW[2])];
+  const finW=bw(S.nightly,`n${CR}_f0`,sfW[0],sfW[1]);
+  const ch=finW&&finW!=='TBC'&&finW!=='Replay'
+    ?`<div class="champ">🏆 Round ${CR+1} Champion<br><span style="font-size:1.1em">${finW}</span></div>`
+    :`<div class="pend">🎯 Round ${CR+1} — pending</div>`;
+  set(`<div class="rnds">${rb}</div>
+    <div class="card">
+      <div class="nh">🌙 Round ${CR+1} — Nightly Mini League</div>
+      <div class="tw"><table><thead><tr>
+        <th>#</th><th class="l">Player</th><th>W</th><th>L</th><th>LD</th><th>Pts</th>
+      </tr></thead><tbody>${mlRows||'<tr><td colspan="6" class="tbc">No results yet</td></tr>'}</tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="nh">Knockout — seeded from mini league above</div>
+      <div style="font-size:.7em;color:var(--sub);margin-bottom:8px">1v8 · 2v7 · 3v6 · 4v5</div>
+      <div style="font-size:.7em;font-weight:700;color:var(--sub);margin-bottom:5px">QUARTER-FINALS</div>
+      ${qP.map(([a,b],i)=>bRow(`QF${i+1}`,'#6A1B9A',`n${CR}_qf${i}`,S.nightly,nSeed(CR,a),nSeed(CR,b))).join('')}
+      <div style="font-size:.7em;font-weight:700;color:var(--sub);margin:8px 0 5px">SEMI-FINALS</div>
+      ${bRow('SF1','#6A1B9A',`n${CR}_sf0`,S.nightly,qW[0],qW[3])}
+      ${bRow('SF2','#6A1B9A',`n${CR}_sf1`,S.nightly,qW[1],qW[2])}
+      <div style="font-size:.7em;font-weight:700;color:var(--sub);margin:8px 0 5px">FINAL</div>
+      ${bRow('FINAL','#F9A825',`n${CR}_f0`,S.nightly,sfW[0],sfW[1])}
+      ${ch}
+    </div>`);
+}
+
+function rWinners(){
+  const wins={};let rows='';
+  S.fixtures.forEach((_,ri)=>{
+    const ml=calcNML(ri);
+    const qW=[[1,8],[2,7],[3,6],[4,5]].map(([a,b],i)=>
+      bw(S.nightly,`n${ri}_qf${i}`,ml[a-1]?ml[a-1].name:'TBC',ml[b-1]?ml[b-1].name:'TBC'));
+    const sf0=bw(S.nightly,`n${ri}_sf0`,qW[0],qW[3]);
+    const sf1=bw(S.nightly,`n${ri}_sf1`,qW[1],qW[2]);
+    const ch=bw(S.nightly,`n${ri}_f0`,sf0,sf1);
+    if(ch&&ch!=='TBC'&&ch!=='Replay')wins[ch]=(wins[ch]||0)+1;
+    const ct=ch&&ch!=='TBC'&&ch!=='Replay'
+      ?`<b style="color:var(--gold)">${ch}</b>`:`<span class="tbc">Pending</span>`;
+    rows+=`<tr><td>${ri+1}</td><td class="l">${ct}</td>
+      <td>${wins[ch]>1?`<span class="pill pw">${wins[ch]}×</span>`:''}</td></tr>`;
+  });
+  const top=Object.entries(wins).sort((a,b)=>b[1]-a[1])[0];
+  set(`${top?`<div class="champ">⭐ Most Nightly Wins<br>${top[0]} (${top[1]}×)</div>`:''}
+    <div class="card"><div class="ct">Round Champions</div>
+    <div class="tw"><table>
+      <thead><tr><th>Rnd</th><th class="l">Champion</th><th>Wins</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>`);
+}
+
+function rScores(){
+  const sorted=[...calcLeague()].sort((a,b)=>b.s8-a.s8||b.s4-a.s4||b.s1-a.s1||b.co-a.co)
+    .filter(p=>p.s1||p.s4||p.s8||p.co);
+  let rows='';
+  sorted.forEach((p,i)=>rows+=`<tr>
+    <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
+    <td class="l"><b>${p.name}</b></td>
+    <td style="color:#60a5fa">${p.s1||0}</td>
+    <td style="color:#fb923c">${p.s4||0}</td>
+    <td style="color:#f87171;font-weight:700">${p.s8||0}</td>
+    <td style="color:#4ade80">${p.co||0}</td>
+    <td style="color:var(--gold);font-weight:700">${(p.s1||0)+(p.s4||0)+(p.s8||0)+(p.co||0)}</td>
+  </tr>`);
+  set(`<div class="card"><div class="ct">High Scores Leaderboard</div>
+    <div style="font-size:.75em;color:var(--sub);margin-bottom:8px">Sorted: 180s → 140+ → 100+ → Checkouts</div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th class="l">Player</th>
+        <th style="background:#1e3a8a">100+</th>
+        <th style="background:#7c2d12">140+</th>
+        <th style="background:#7f1d1d">180</th>
+        <th style="background:#14532d">CO+</th>
+        <th>Tot</th>
+      </tr></thead>
+      <tbody>${rows||'<tr><td colspan="7" class="tbc">No scores yet</td></tr>'}</tbody>
+    </table></div></div>`);
+}
+
+function rFinals(){
+  const rk=n=>pAtRank(n);
+  const qP=[[1,8],[2,7],[3,6],[4,5]];
+  const qW=qP.map(([a,b],i)=>bw(S.finals,`fqf${i}`,rk(a),rk(b)));
+  const sf0=bw(S.finals,'fsf0',qW[0],qW[3]);
+  const sf1=bw(S.finals,'fsf1',qW[1],qW[2]);
+  const finW=bw(S.finals,'ffin',sf0,sf1);
+  const ch=finW&&finW!=='TBC'&&finW!=='Replay'
+    ?`<div class="champ">🏆 League Champion<br><span style="font-size:1.2em">${finW}</span></div>`
+    :`<div class="pend">🎯 Finals Night — results pending</div>`;
+  set(`<div class="card"><div class="ct">Finals Night — auto-seeded from league</div>
+    <div style="font-size:.72em;color:var(--sub);margin-bottom:10px">1st v 8th · 2nd v 7th · 3rd v 6th · 4th v 5th</div>
+    <div style="font-size:.7em;font-weight:700;color:var(--sub);margin-bottom:5px">QUARTER-FINALS</div>
+    ${qP.map(([a,b],i)=>bRow(`QF${i+1}`,'#2E7D32',`fqf${i}`,S.finals,rk(a),rk(b))).join('')}
+    <div style="font-size:.7em;font-weight:700;color:var(--sub);margin:8px 0 5px">SEMI-FINALS</div>
+    ${bRow('SF1','#F9A825','fsf0',S.finals,qW[0],qW[3])}
+    ${bRow('SF2','#F9A825','fsf1',S.finals,qW[1],qW[2])}
+    <div style="font-size:.7em;font-weight:700;color:var(--sub);margin:8px 0 5px">THE FINAL</div>
+    ${bRow('FINAL','#F9A825','ffin',S.finals,sf0,sf1)}
+    ${ch}
+  </div>`);
+}
+
+function rSpoon(){
+  const lg=calcLeague();const n=lg.length;
+  const bp=i=>lg[n-1-i]?lg[n-1-i].name:'TBC';
+  const sf0=bw(S.wooden,'wsf0',bp(0),bp(2));
+  const sf1=bw(S.wooden,'wsf1',bp(1),bp(3));
+  const finW=bw(S.wooden,'wfin',sf0,sf1);
+  const spoon=finW&&finW!=='TBC'&&finW!=='Replay'
+    ?(finW===sf0?bp(2):bp(0))===finW?bp(0):finW===sf0?bp(2):bp(3):null;
+  let spoonP=null;
+  if(finW&&finW!=='TBC'&&finW!=='Replay'){spoonP=finW===sf0?sf1:sf0;}
+  const spoonHTML=spoonP
+    ?`<div class="spoon">🥄 Wooden Spoon<br><span style="font-size:1.1em">${spoonP}</span><br><small style="font-weight:400;font-size:.7em">Commiserations!</small></div>`
+    :`<div class="pend">🥄 Wooden Spoon — to be decided</div>`;
+  set(`<div class="card"><div class="ct">Wooden Spoon Playoff — bottom 4</div>
+    <div style="font-size:.72em;color:var(--sub);margin-bottom:10px">Loser of the final collects the spoon</div>
+    <div style="font-size:.7em;font-weight:700;color:var(--sub);margin-bottom:5px">SEMI-FINALS</div>
+    ${bRow('SF1','#4E342E','wsf0',S.wooden,bp(0),bp(2))}
+    ${bRow('SF2','#4E342E','wsf1',S.wooden,bp(1),bp(3))}
+    <div style="font-size:.7em;font-weight:700;color:var(--sub);margin:8px 0 5px">THE FINAL</div>
+    ${bRow('FINAL','#4E342E','wfin',S.wooden,sf0,sf1)}
+    ${spoonHTML}
+  </div>`);
+}
+
+function set(html){document.getElementById('content').innerHTML=html;}
+initNav();showTab(0);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body></html>

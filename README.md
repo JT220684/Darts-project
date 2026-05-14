@@ -1,0 +1,11 @@
+## Features
+- Player setup (4-16 players)
+- 15 rounds of randomised fixtures
+- Leg scores + 100+ / 140+ / 180 / checkout tracking
+- Live league table
+- Nightly mini league + QF/SF/Final bracket per round
+- Nightly winners summary
+- High scores leaderboard
+- Finals Night (top 8, auto-seeded)
+- Wooden Spoon playoff (bottom 4)
+- All data saved automatically to browser storage
